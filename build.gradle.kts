@@ -1,5 +1,6 @@
 allprojects {
     repositories {
+        // Local repo populated from artifact cache (network-restricted env)
         mavenCentral()
         google()
         mavenLocal {

@@ -7,7 +7,7 @@
     <string name="network_message">Ar norite leisti duomenų siuntimą per mobilius arba tarptinklinius tinklus? Charges from your provider may apply.</string>
     <string name="network_title">Leidžiamos Tinklo Rūšys</string>
     <string name="battery_optimizations_message">Prašome išjungti baterijos optimizavimą, tam kad medijos atkūrimas veiktų išjungus ekraną.</string>
-    <string name="activity_name_settings">Jellyfin Nustatymai</string>
+    <string name="activity_name_settings">AeonTV Nustatymai</string>
     <string name="external_player_unknown_error">Nežinoma išorinio grotuvo klaida. Atkūrimo sekimas išjungtas.</string>
     <string name="external_player_invalid_player">Nepasirinktas tinkamas išorinis grotuvas. Atkūrimo sekimas išjungtas.</string>
     <string name="external_player_not_supported_yet">Atkūrimo sekimas dar nepalaikomas pasirinktame išoriniame grotuve. Susisiekite su kūrėjais dėl jo palaikymo pridėjimo.</string>
@@ -32,7 +32,7 @@
     <string name="notification_action_rewind">Atsukti</string>
     <string name="notification_action_previous">Ankstesnis</string>
     <string name="music_notification_channel_description">Naudojamas muzikos grojimo valdikliams</string>
-    <string name="music_notification_channel">Jellyfin Muzikos Grotuvas</string>
+    <string name="music_notification_channel">AeonTV Muzikos Grotuvas</string>
     <string name="media_service_car_item_no_title">Be pavadinimo</string>
     <string name="media_service_car_section_playlists">Grojaraščiai</string>
     <string name="media_service_car_section_genres">Žanrai</string>

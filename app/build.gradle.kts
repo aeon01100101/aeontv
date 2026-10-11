@@ -25,9 +25,10 @@ android {
     defaultConfig {
         minSdk = 21
         targetSdk = 34
+        applicationId = "com.aeontv.app"
         versionName = project.getVersionName()
         versionCode = getVersionCode(versionName!!)
-        setProperty("archivesBaseName", "jellyfin-android-v$versionName")
+        setProperty("archivesBaseName", "aeontv-android-v$versionName")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }

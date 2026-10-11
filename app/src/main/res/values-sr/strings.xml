@@ -21,7 +21,7 @@
     <string name="dialog_web_view_not_supported_message">Веб-Приказ није подржан на овом уређају.
 \nИнсталирајте подржну имплементацију Веб-Приказа или се пребаците на подржан уређај.</string>
     <string name="dialog_web_view_not_supported">WebView није подржан</string>
-    <string name="music_notification_channel">Jellyfin плејер за музику</string>
+    <string name="music_notification_channel">AeonTV плејер за музику</string>
     <string name="media_service_car_item_no_title">Без наслова</string>
     <string name="media_service_car_section_playlists">Плејлисте</string>
     <string name="media_service_car_section_genres">Жанрови</string>

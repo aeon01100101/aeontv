@@ -7,7 +7,7 @@
     <string name="network_message">Vai atļaut lejupielādi izmantojot mobilos vai viesabonēšanas tīklus? Var tikt piemērota papildus maksa no pakalpojuma piedāvātāja.</string>
     <string name="network_title">Atļautie Tīkla Veidi</string>
     <string name="battery_optimizations_message">Lūdzu atspējo baterijas optimizāciju lai atskaņotu saturu kamēr ekrāns ir izslēgts.</string>
-    <string name="activity_name_settings">Jellyfin Iestatījumi</string>
+    <string name="activity_name_settings">AeonTV Iestatījumi</string>
     <string name="external_player_unknown_error">Nezināma kļūme ārējā atskaņotājā. Atskaņošanas izsekošana atspējota.</string>
     <string name="external_player_invalid_player">Nav izvēlēts atbilstošs ārējais atskaņotājs. Atskaņošanas izsekošana atspējota.</string>
     <string name="external_player_not_supported_yet">Atskaņošanas izsekošana vēl nav atbalstīta izvēlētajā ārējā atskaņotājā. Kontaktējaties ar izstrādātājiem, lai pievienotu atbalstu.</string>
@@ -25,7 +25,7 @@
     <string name="notification_action_rewind">Attīt</string>
     <string name="notification_action_previous">Iepriekšējais</string>
     <string name="music_notification_channel_description">Lietots mūzikas atskaņošanas pārvaldībai</string>
-    <string name="music_notification_channel">Jellyfin Mūzikas Atskaņotājs</string>
+    <string name="music_notification_channel">AeonTV Mūzikas Atskaņotājs</string>
     <string name="media_service_car_item_no_title">Nav nosaukuma</string>
     <string name="media_service_car_section_playlists">Atskaņošanas Saraksti</string>
     <string name="media_service_car_section_genres">Žanri</string>

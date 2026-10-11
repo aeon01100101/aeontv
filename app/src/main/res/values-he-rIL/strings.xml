@@ -3,7 +3,7 @@
     <string name="pref_category_video_player">נגן וידיאו</string>
     <string name="pref_music_notification_always_dismissible_title">הגדר את התראת נגן השמע כניתן לביטול</string>
     <string name="pref_category_music_player">נגן מוזיקה</string>
-    <string name="activity_name_settings">הגדרות Jellyfin</string>
+    <string name="activity_name_settings">הגדרות AeonTV</string>
     <string name="playback_info_and_x_more">...ועוד %d נוספים</string>
     <string name="playback_info_audio_streams">הזרמות שמע</string>
     <string name="playback_info_video_streams">הזרמות וידיאו</string>
@@ -31,7 +31,7 @@
     <string name="notification_action_rewind">הרץ אחורה</string>
     <string name="notification_action_previous">קודם</string>
     <string name="music_notification_channel_description">משמש לפקדי השמעת מוזיקה</string>
-    <string name="music_notification_channel">Jellyfin Music Player</string>
+    <string name="music_notification_channel">AeonTV Music Player</string>
     <string name="media_service_car_item_no_title">ללא כותרת</string>
     <string name="media_service_car_section_playlists">רשימות השמעה</string>
     <string name="media_service_car_section_genres">ז\'אנרים</string>
