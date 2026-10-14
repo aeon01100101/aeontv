@@ -94,6 +94,7 @@ class ArchiveActivity : ComponentActivity() {
                 ArchiveScreen(
                     onClose = { finish() },
                     onOpenSphere = { openSphereLauncher.launch(arrayOf("*/*")) },
+                    onOpenLiveTv = { org.jellyfin.mobile.livetv.LiveTvActivity.start(this) },
                 )
             }
         }
@@ -112,7 +113,7 @@ private sealed interface ArchiveQuery {
 }
 
 @Composable
-private fun ArchiveScreen(onClose: () -> Unit, onOpenSphere: () -> Unit) {
+private fun ArchiveScreen(onClose: () -> Unit, onOpenSphere: () -> Unit, onOpenLiveTv: () -> Unit) {
     var selectedItem by remember { mutableStateOf<ArchiveItem?>(null) }
 
     Surface(color = MaterialTheme.colors.background, modifier = Modifier.fillMaxSize()) {
@@ -127,13 +128,14 @@ private fun ArchiveScreen(onClose: () -> Unit, onOpenSphere: () -> Unit) {
                 onClose = onClose,
                 onItemClick = { selectedItem = it },
                 onOpenSphere = onOpenSphere,
+                onOpenLiveTv = onOpenLiveTv,
             )
         }
     }
 }
 
 @Composable
-private fun ArchiveBrowse(onClose: () -> Unit, onItemClick: (ArchiveItem) -> Unit, onOpenSphere: () -> Unit) {
+private fun ArchiveBrowse(onClose: () -> Unit, onItemClick: (ArchiveItem) -> Unit, onOpenSphere: () -> Unit, onOpenLiveTv: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var searchText by remember { mutableStateOf("") }
@@ -186,9 +188,9 @@ private fun ArchiveBrowse(onClose: () -> Unit, onItemClick: (ArchiveItem) -> Uni
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
             Column {
-                Text("Archive Mode", style = MaterialTheme.typography.h6, fontWeight = FontWeight.Bold)
+                Text("Other media", style = MaterialTheme.typography.h6, fontWeight = FontWeight.Bold)
                 Text(
-                    "Free classics from archive.org — no server needed",
+                    "Free movies & TV from archive.org",
                     style = MaterialTheme.typography.caption,
                 )
             }
@@ -223,6 +225,21 @@ private fun ArchiveBrowse(onClose: () -> Unit, onItemClick: (ArchiveItem) -> Uni
             Spacer(modifier = Modifier.width(8.dp))
             TextButton(onClick = onOpenSphere) {
                 Text("Open .sphere")
+            }
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+        ) {
+            Text(
+                "Live TV — 98 free channels",
+                style = MaterialTheme.typography.body2,
+                color = Color.LightGray,
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            TextButton(onClick = onOpenLiveTv) {
+                Text("Watch")
             }
         }
 

@@ -23,8 +23,8 @@ object ArchiveShortcut {
             action = Intent.ACTION_VIEW
         }
         val shortcut = ShortcutInfo.Builder(context, SHORTCUT_ID)
-            .setShortLabel("Archive Mode")
-            .setLongLabel("Watch free classics from archive.org")
+            .setShortLabel("Other media")
+            .setLongLabel("Free movies & TV from archive.org")
             .setIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
             .setIntent(intent)
             .build()
