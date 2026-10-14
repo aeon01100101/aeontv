@@ -56,8 +56,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.ImageLoader
-import coil.request.ImageRequest
 import kotlinx.coroutines.launch
 import org.jellyfin.mobile.archive.ArchivePlayerActivity
 import org.jellyfin.mobile.sphere.SphereActivity
@@ -99,10 +97,14 @@ private fun OriginalsScreen(onClose: () -> Unit) {
     var selected by remember { mutableStateOf<OriginalEntry?>(null) }
     var reloadKey by remember { mutableStateOf(0) }
 
+    val context = LocalContext.current
     LaunchedEffect(reloadKey) {
         state = OriginalsState.Loading
         state = try {
-            OriginalsState.Ready(OriginalsApi.fetchOriginals())
+            val entries = OriginalsApi.fetchOriginals()
+            // Download & cache all posters up front so the grid is instant later
+            OriginalThumbnails.prefetch(context.applicationContext, entries.map { it.item.thumbnailUrl })
+            OriginalsState.Ready(entries)
         } catch (e: Exception) {
             OriginalsState.Failed(e.message ?: "Unknown error")
         }
@@ -238,14 +240,10 @@ private fun OriginalCard(entry: OriginalEntry, onClick: () -> Unit) {
 @Composable
 private fun OriginalThumbnail(url: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val imageLoader = remember { ImageLoader.Builder(context).build() }
+    val imageLoader = remember { OriginalThumbnails.get(context) }
     var bitmap by remember(url) { mutableStateOf<Bitmap?>(null) }
     LaunchedEffect(url) {
-        val request = ImageRequest.Builder(context)
-            .data(url)
-            .allowHardware(false)
-            .build()
-        val result = runCatching { imageLoader.execute(request) }.getOrNull()
+        val result = runCatching { imageLoader.execute(OriginalThumbnails.request(context, url)) }.getOrNull()
         bitmap = (result?.drawable as? BitmapDrawable)?.bitmap
     }
     Box(modifier = modifier.background(Color.DarkGray)) {
