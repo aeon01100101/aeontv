@@ -101,9 +101,9 @@ private fun OriginalsScreen(onClose: () -> Unit) {
     LaunchedEffect(reloadKey) {
         state = OriginalsState.Loading
         state = try {
-            val entries = OriginalsApi.fetchOriginals()
+            val entries = OriginalsApi.fetchOriginals(context.applicationContext)
             // Download & cache all posters up front so the grid is instant later
-            OriginalThumbnails.prefetch(context.applicationContext, entries.map { it.item.thumbnailUrl })
+            OriginalThumbnails.prefetch(context.applicationContext, entries.map { it.posterUrl })
             OriginalsState.Ready(entries)
         } catch (e: Exception) {
             OriginalsState.Failed(e.message ?: "Unknown error")
@@ -212,7 +212,7 @@ private fun OriginalCard(entry: OriginalEntry, onClick: () -> Unit) {
     ) {
         Column {
             OriginalThumbnail(
-                url = entry.item.thumbnailUrl,
+                url = entry.posterUrl,
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(2f / 3f),
@@ -283,7 +283,7 @@ private fun OriginalDetail(entry: OriginalEntry, onBack: () -> Unit) {
                 .padding(horizontal = 16.dp),
         ) {
             OriginalThumbnail(
-                url = item.thumbnailUrl,
+                url = entry.posterUrl,
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(16f / 9f),

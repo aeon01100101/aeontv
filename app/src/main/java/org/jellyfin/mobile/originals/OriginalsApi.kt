@@ -39,6 +39,8 @@ data class OriginalFile(
 data class OriginalEntry(
     val item: ArchiveItem,
     val files: List<OriginalFile>,
+    /** Official poster (TMDB, Jellyfin-style) when matched; else the archive.org thumbnail. */
+    val posterUrl: String = item.thumbnailUrl,
 )
 
 /**
@@ -55,14 +57,25 @@ object OriginalsApi {
         .readTimeout(30, TimeUnit.SECONDS)
         .build()
 
-    suspend fun fetchOriginals(): List<OriginalEntry> {
+    suspend fun fetchOriginals(context: Context): List<OriginalEntry> {
         val uploads = fetchUploads()
         if (uploads.isEmpty()) return emptyList()
+        val appContext = context.applicationContext
         return coroutineScope {
             uploads.map { item ->
                 async(Dispatchers.IO) {
                     val files = loadPlayableFiles(item.identifier)
-                    if (files.isEmpty()) null else OriginalEntry(item, files)
+                    if (files.isEmpty()) {
+                        null
+                    } else {
+                        val poster = TmdbPosters.posterUrl(
+                            appContext,
+                            item.identifier,
+                            item.title,
+                            item.year?.toIntOrNull(),
+                        )
+                        OriginalEntry(item, files, poster ?: item.thumbnailUrl)
+                    }
                 }
             }.awaitAll().filterNotNull()
         }
