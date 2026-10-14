@@ -97,6 +97,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Make Archive Mode reachable from the launcher (long-press the app icon)
+        org.jellyfin.mobile.archive.ArchiveShortcut.publish(this)
+
         // Check WebView support
         if (!isWebViewSupported()) {
             AlertDialog.Builder(this).apply {

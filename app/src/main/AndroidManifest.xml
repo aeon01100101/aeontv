@@ -67,6 +67,18 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".archive.ArchiveActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".archive.ArchivePlayerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize"
+            android:exported="false"
+            android:screenOrientation="sensorLandscape"
+            android:theme="@style/AppTheme" />
+
 
         <service
             android:name=".webapp.RemotePlayerService"
