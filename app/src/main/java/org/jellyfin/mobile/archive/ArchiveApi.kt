@@ -35,6 +35,10 @@ data class ArchiveFile(
     fun streamUrl(identifier: String): String =
         "https://archive.org/download/$identifier/${Uri.encode(name, "/")}"
 
+    /** Sphere packages are supported silently: they list and play like any other video file. */
+    val isSphere: Boolean
+        get() = name.endsWith(".sphere", ignoreCase = true)
+
     val sizeLabel: String
         get() = when {
             sizeBytes >= 1_000_000_000 -> String.format("%.1f GB", sizeBytes / 1e9)
@@ -119,35 +123,62 @@ object ArchiveApi {
 
     /**
      * Load the playable video files for an item, best streaming choice first:
-     * the 512kb derivative (fast start, low bandwidth), then h.264 MP4s, then the rest.
+     * the 512kb derivative (fast start, low bandwidth), then h.264 MP4s, then
+     * the rest. Sphere files inside the item are included as ordinary videos.
      */
     suspend fun loadFiles(identifier: String): List<ArchiveFile> = withContext(Dispatchers.IO) {
         val body = get("https://archive.org/metadata/$identifier") ?: return@withContext emptyList()
         val files = JSONObject(body).optJSONArray("files") ?: return@withContext emptyList()
-        val playable = mutableListOf<ArchiveFile>()
+        val videos = mutableListOf<ArchiveFile>()
+        val spheres = mutableListOf<ArchiveFile>()
         for (i in 0 until files.length()) {
             val file = files.optJSONObject(i) ?: continue
             val name = file.optString("name")
             val format = file.optString("format")
             val lowerName = name.lowercase()
-            if (!lowerName.endsWith(".mp4") && !lowerName.endsWith(".ogv") && !lowerName.endsWith(".mkv")) continue
             if (format.contains("Thumbnail", ignoreCase = true)) continue
             if (format.contains("Metadata", ignoreCase = true)) continue
-            playable.add(
-                ArchiveFile(
+            when {
+                lowerName.endsWith(".sphere") -> spheres += ArchiveFile(
                     name = name,
-                    format = format,
+                    format = "Video",
                     sizeBytes = file.optString("size").toLongOrNull() ?: 0L,
-                    lengthSeconds = file.optString("length").toDoubleOrNull(),
-                ),
-            )
+                    lengthSeconds = null,
+                )
+                lowerName.endsWith(".mp4") || lowerName.endsWith(".ogv") || lowerName.endsWith(".mkv") ->
+                    videos += ArchiveFile(
+                        name = name,
+                        format = format,
+                        sizeBytes = file.optString("size").toLongOrNull() ?: 0L,
+                        lengthSeconds = file.optString("length").toDoubleOrNull(),
+                    )
+            }
         }
-        playable.sortedWith(
+        val sortedVideos = videos.sortedWith(
             compareByDescending<ArchiveFile> { it.name.endsWith("_512kb.mp4", ignoreCase = true) }
                 .thenByDescending { it.format.contains("h.264", ignoreCase = true) }
                 .thenBy { it.sizeBytes },
         )
+        sortedVideos + spheres.sortedBy { it.name }
     }
+
+    /** Download one file of an item into the app cache (used for sphere files, which open locally). */
+    suspend fun downloadToCache(context: android.content.Context, identifier: String, fileName: String): java.io.File =
+        withContext(Dispatchers.IO) {
+            val dir = java.io.File(context.cacheDir, "archive_files").apply { mkdirs() }
+            val target = java.io.File(dir, identifier + "_" + fileName)
+            if (target.exists() && target.length() > 0) return@withContext target
+            val request = okhttp3.Request.Builder()
+                .url("https://archive.org/download/$identifier/${Uri.encode(fileName, "/")}")
+                .header("User-Agent", "AeonTV")
+                .build()
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) throw IllegalStateException("HTTP ${response.code}")
+                val bytes = response.body?.bytes() ?: throw IllegalStateException("Empty file")
+                target.writeBytes(bytes)
+            }
+            return@withContext target
+        }
 
     private fun get(url: String): String? {
         val request = Request.Builder()

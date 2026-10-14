@@ -77,14 +77,6 @@ import org.jellyfin.mobile.ui.utils.AppTheme
  * No AeonTV server connection needed — playback streams straight from archive.org.
  */
 class ArchiveActivity : ComponentActivity() {
-    private val openSphereLauncher = registerForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.OpenDocument(),
-    ) { uri ->
-        if (uri != null) {
-            org.jellyfin.mobile.sphere.SphereActivity.start(this, uri)
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val composeView = ComposeView(this)
@@ -93,7 +85,6 @@ class ArchiveActivity : ComponentActivity() {
             AppTheme {
                 ArchiveScreen(
                     onClose = { finish() },
-                    onOpenSphere = { openSphereLauncher.launch(arrayOf("*/*")) },
                     onOpenLiveTv = { org.jellyfin.mobile.livetv.LiveTvActivity.start(this) },
                 )
             }
@@ -113,7 +104,7 @@ private sealed interface ArchiveQuery {
 }
 
 @Composable
-private fun ArchiveScreen(onClose: () -> Unit, onOpenSphere: () -> Unit, onOpenLiveTv: () -> Unit) {
+private fun ArchiveScreen(onClose: () -> Unit, onOpenLiveTv: () -> Unit) {
     var selectedItem by remember { mutableStateOf<ArchiveItem?>(null) }
 
     Surface(color = MaterialTheme.colors.background, modifier = Modifier.fillMaxSize()) {
@@ -127,7 +118,6 @@ private fun ArchiveScreen(onClose: () -> Unit, onOpenSphere: () -> Unit, onOpenL
             ArchiveBrowse(
                 onClose = onClose,
                 onItemClick = { selectedItem = it },
-                onOpenSphere = onOpenSphere,
                 onOpenLiveTv = onOpenLiveTv,
             )
         }
@@ -135,7 +125,7 @@ private fun ArchiveScreen(onClose: () -> Unit, onOpenSphere: () -> Unit, onOpenL
 }
 
 @Composable
-private fun ArchiveBrowse(onClose: () -> Unit, onItemClick: (ArchiveItem) -> Unit, onOpenSphere: () -> Unit, onOpenLiveTv: () -> Unit) {
+private fun ArchiveBrowse(onClose: () -> Unit, onItemClick: (ArchiveItem) -> Unit, onOpenLiveTv: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var searchText by remember { mutableStateOf("") }
@@ -212,21 +202,6 @@ private fun ArchiveBrowse(onClose: () -> Unit, onItemClick: (ArchiveItem) -> Uni
                 },
             ),
         )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-        ) {
-            Text(
-                "Have a .sphere file?",
-                style = MaterialTheme.typography.body2,
-                color = Color.LightGray,
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            TextButton(onClick = onOpenSphere) {
-                Text("Open .sphere")
-            }
-        }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -374,7 +349,9 @@ private fun ArchiveCard(item: ArchiveItem, onClick: () -> Unit) {
 @Composable
 private fun ArchiveDetail(item: ArchiveItem, onBack: () -> Unit) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var files by remember { mutableStateOf<List<ArchiveFile>?>(null) }
+    var preparingFile by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(item.identifier) {
         files = ArchiveApi.loadFiles(item.identifier)
@@ -436,12 +413,36 @@ private fun ArchiveDetail(item: ArchiveItem, onBack: () -> Unit) {
                             ArchiveFileRow(
                                 file = file,
                                 recommended = index == 0,
+                                preparing = preparingFile == file.name,
                                 onClick = {
-                                    ArchivePlayerActivity.start(
-                                        context = context,
-                                        streamUrl = file.streamUrl(item.identifier),
-                                        title = item.title,
-                                    )
+                                    if (file.isSphere) {
+                                        // Sphere files open locally, exactly like a
+                                        // normal video from the viewer's side.
+                                        preparingFile = file.name
+                                        scope.launch {
+                                            try {
+                                                val local = ArchiveApi.downloadToCache(
+                                                    context.applicationContext,
+                                                    item.identifier,
+                                                    file.name,
+                                                )
+                                                org.jellyfin.mobile.sphere.SphereActivity.start(
+                                                    context,
+                                                    android.net.Uri.fromFile(local),
+                                                )
+                                            } catch (e: Exception) {
+                                                // Download failed: stay on the detail screen.
+                                            } finally {
+                                                preparingFile = null
+                                            }
+                                        }
+                                    } else {
+                                        ArchivePlayerActivity.start(
+                                            context = context,
+                                            streamUrl = file.streamUrl(item.identifier),
+                                            title = item.title,
+                                        )
+                                    }
                                 },
                             )
                             Spacer(modifier = Modifier.height(8.dp))
@@ -454,9 +455,9 @@ private fun ArchiveDetail(item: ArchiveItem, onBack: () -> Unit) {
 }
 
 @Composable
-private fun ArchiveFileRow(file: ArchiveFile, recommended: Boolean, onClick: () -> Unit) {
+private fun ArchiveFileRow(file: ArchiveFile, recommended: Boolean, preparing: Boolean = false, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        modifier = Modifier.fillMaxWidth().clickable(enabled = !preparing, onClick = onClick),
         elevation = 2.dp,
     ) {
         Row(
@@ -473,11 +474,15 @@ private fun ArchiveFileRow(file: ArchiveFile, recommended: Boolean, onClick: () 
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                val details = listOfNotNull(
-                    file.lengthLabel.takeIf { it.isNotBlank() },
-                    file.sizeLabel.takeIf { it.isNotBlank() },
-                    if (recommended) "Recommended" else null,
-                ).joinToString(" · ")
+                val details = if (preparing) {
+                    "Preparing…"
+                } else {
+                    listOfNotNull(
+                        file.lengthLabel.takeIf { it.isNotBlank() },
+                        file.sizeLabel.takeIf { it.isNotBlank() },
+                        if (recommended) "Recommended" else null,
+                    ).joinToString(" · ")
+                }
                 Text(details, style = MaterialTheme.typography.caption, color = Color.LightGray)
             }
         }
