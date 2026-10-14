@@ -74,6 +74,10 @@ class ArchivePlayerActivity : AppCompatActivity() {
         })
         exoPlayer.setMediaItem(MediaItem.fromUri(streamUrl))
         exoPlayer.prepare()
+        val startPositionMs = intent.getLongExtra(EXTRA_START_POSITION_MS, 0L)
+        if (startPositionMs > 0) {
+            exoPlayer.seekTo(startPositionMs)
+        }
         exoPlayer.playWhenReady = true
         playerView.player = exoPlayer
         player = exoPlayer
@@ -88,12 +92,14 @@ class ArchivePlayerActivity : AppCompatActivity() {
     companion object {
         private const val EXTRA_STREAM_URL = "stream_url"
         private const val EXTRA_TITLE = "title"
+        private const val EXTRA_START_POSITION_MS = "start_position_ms"
 
-        fun start(context: Context, streamUrl: String, title: String) {
+        fun start(context: Context, streamUrl: String, title: String, startPositionMs: Long = 0L) {
             context.startActivity(
                 Intent(context, ArchivePlayerActivity::class.java).apply {
                     putExtra(EXTRA_STREAM_URL, streamUrl)
                     putExtra(EXTRA_TITLE, title)
+                    putExtra(EXTRA_START_POSITION_MS, startPositionMs)
                 },
             )
         }

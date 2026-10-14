@@ -79,6 +79,31 @@
             android:screenOrientation="sensorLandscape"
             android:theme="@style/AppTheme" />
 
+        <!-- .sphere files (Albish video format): open from file managers etc. -->
+        <activity
+            android:name=".sphere.SphereActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\.sphere" />
+                <data android:pathPattern=".*\..*\.sphere" />
+                <data android:pathPattern=".*\..*\..*\.sphere" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="video/sphere" />
+                <data android:mimeType="application/x-sphere" />
+            </intent-filter>
+        </activity>
+
 
         <service
             android:name=".webapp.RemotePlayerService"

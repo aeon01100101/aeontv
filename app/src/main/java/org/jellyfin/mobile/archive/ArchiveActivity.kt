@@ -77,13 +77,24 @@ import org.jellyfin.mobile.ui.utils.AppTheme
  * No AeonTV server connection needed — playback streams straight from archive.org.
  */
 class ArchiveActivity : ComponentActivity() {
+    private val openSphereLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri != null) {
+            org.jellyfin.mobile.sphere.SphereActivity.start(this, uri)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val composeView = ComposeView(this)
         setContentView(composeView)
         composeView.setContent {
             AppTheme {
-                ArchiveScreen(onClose = { finish() })
+                ArchiveScreen(
+                    onClose = { finish() },
+                    onOpenSphere = { openSphereLauncher.launch(arrayOf("*/*")) },
+                )
             }
         }
     }
@@ -101,7 +112,7 @@ private sealed interface ArchiveQuery {
 }
 
 @Composable
-private fun ArchiveScreen(onClose: () -> Unit) {
+private fun ArchiveScreen(onClose: () -> Unit, onOpenSphere: () -> Unit) {
     var selectedItem by remember { mutableStateOf<ArchiveItem?>(null) }
 
     Surface(color = MaterialTheme.colors.background, modifier = Modifier.fillMaxSize()) {
@@ -115,13 +126,14 @@ private fun ArchiveScreen(onClose: () -> Unit) {
             ArchiveBrowse(
                 onClose = onClose,
                 onItemClick = { selectedItem = it },
+                onOpenSphere = onOpenSphere,
             )
         }
     }
 }
 
 @Composable
-private fun ArchiveBrowse(onClose: () -> Unit, onItemClick: (ArchiveItem) -> Unit) {
+private fun ArchiveBrowse(onClose: () -> Unit, onItemClick: (ArchiveItem) -> Unit, onOpenSphere: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var searchText by remember { mutableStateOf("") }
@@ -198,6 +210,21 @@ private fun ArchiveBrowse(onClose: () -> Unit, onItemClick: (ArchiveItem) -> Uni
                 },
             ),
         )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+        ) {
+            Text(
+                "Have a .sphere file?",
+                style = MaterialTheme.typography.body2,
+                color = Color.LightGray,
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            TextButton(onClick = onOpenSphere) {
+                Text("Open .sphere")
+            }
+        }
 
         LazyRow(
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
