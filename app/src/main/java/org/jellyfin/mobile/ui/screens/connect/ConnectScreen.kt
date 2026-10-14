@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import org.jellyfin.mobile.MainViewModel
 import org.jellyfin.mobile.R
 import org.jellyfin.mobile.archive.ArchiveActivity
+import org.jellyfin.mobile.livetv.LiveTvActivity
 import org.jellyfin.mobile.ui.utils.CenterRow
 
 @Composable
@@ -43,7 +44,34 @@ fun ConnectScreen(
                 },
             )
             ArchiveModeEntry()
+            LiveTvEntry()
         }
+    }
+}
+
+@Composable
+private fun LiveTvEntry() {
+    val context = LocalContext.current
+    Spacer(modifier = Modifier.height(28.dp))
+    Divider()
+    Spacer(modifier = Modifier.height(16.dp))
+    Text(
+        text = "Live TV",
+        style = MaterialTheme.typography.h6,
+    )
+    Spacer(modifier = Modifier.height(4.dp))
+    Text(
+        text = "Watch live channels — AeonTV grabs the newest channel list & guide from archive.org every time you open it.",
+        style = MaterialTheme.typography.body2,
+    )
+    Spacer(modifier = Modifier.height(12.dp))
+    OutlinedButton(
+        onClick = {
+            context.startActivity(Intent(context, LiveTvActivity::class.java))
+        },
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Text("Watch Live TV")
     }
 }
 

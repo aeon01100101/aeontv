@@ -99,6 +99,8 @@ class MainActivity : AppCompatActivity() {
 
         // Make Archive Mode reachable from the launcher (long-press the app icon)
         org.jellyfin.mobile.archive.ArchiveShortcut.publish(this)
+        // Same for Live TV
+        org.jellyfin.mobile.livetv.LiveTvShortcut.publish(this)
 
         // Check WebView support
         if (!isWebViewSupported()) {
