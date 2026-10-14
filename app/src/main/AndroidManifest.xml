@@ -67,6 +67,11 @@
             android:theme="@style/AppTheme" />
 
         <activity
+            android:name=".originals.OriginalsLiveTvActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme" />
+
+        <activity
             android:name=".MainActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboard|keyboardHidden|navigation|uiMode"
             android:exported="true"

@@ -63,8 +63,8 @@ import org.jellyfin.mobile.ui.utils.AppTheme
 
 /**
  * "Originally from AeonTV": our own archive.org uploads that contain a
- * playable .mp4 or .sphere, plus the slot for our own Live TV
- * (our own m3u & guide, coming later).
+ * playable .mp4 or .sphere, plus our own Live TV, whose playlists
+ * are auto-detected from the archive (see OriginalsLiveTvApi).
  */
 class OriginalsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -131,7 +131,7 @@ private fun OriginalsScreen(onClose: () -> Unit) {
                     }
                 }
 
-                // Our own Live TV lives here — it arrives when we make our own m3u & guide.
+                // Our own Live TV: channels come from playlists auto-detected on our archive.
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -142,9 +142,14 @@ private fun OriginalsScreen(onClose: () -> Unit) {
                         Text("Live TV", style = MaterialTheme.typography.h6, fontWeight = FontWeight.Bold, color = Color(0xFF00C8F0))
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            "Our own live channels — coming later, when we make our own playlist & guide.",
+                            "Our own live channels. Playlists uploaded to our archive are " +
+                                "detected automatically — new channels add themselves.",
                             style = MaterialTheme.typography.body2,
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(onClick = { OriginalsLiveTvActivity.start(context) }) {
+                            Text("Watch")
+                        }
                     }
                 }
 
